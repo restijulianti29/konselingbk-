@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Konseling Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .nav-active svg, .nav-active span {
+            color: #0284c7; /* sky-600 */
+        }
+        .admin-nav-link.active {
+            background-color: #e0f2fe; /* sky-100 */
+            color: #0369a1; /* sky-700 */
+            font-weight: 600;
+        }
+        .chat-bubble-user {
+            background-color: #dbeafe; /* blue-100 */
+            color: #1e40af; /* blue-800 */
+        }
+        .chat-bubble-admin {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        .broadcast-bubble {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+        .mountain-bg {
+            background-image: url('https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center bottom;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Halaman Login -->
+    <div id="login-page" class="flex items-center justify-center min-h-screen p-4 mountain-bg">
+        <div class="w-full max-w-md p-8 space-y-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg">
+            <div class="text-center">
+                 <div class="flex justify-center items-center gap-3 mb-4">
+                    <div class="bg-sky-600 p-3 rounded-full shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mountain-snow"><path d="M8 3l4 8 5-5 5 15H2L8 3z"/><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"/></svg>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800">Selamat Datang</h1>
+                <p class="text-slate-600 mt-2">Masuk untuk memulai perjalananmu.</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-600">Username</label>
+                    <input type="text" id="username" name="username" required class="w-full mt-1 px-4 py-3 bg-white/70 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all" placeholder="contoh: aldebaran">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-600">Password</label>
+                    <input type="password" id="password" name="password" required class="w-full mt-1 px-4 py-3 bg-white/70 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all" placeholder="••••••••">
+                </div>
+                <div class="space-y-2">
+                     <label class="block text-sm font-medium text-slate-600">Masuk sebagai:</label>
+                    <div class="flex items-center gap-4">
+                        <label for="role-siswa" class="flex items-center cursor-pointer">
+                            <input type="radio" id="role-siswa" name="role" value="siswa" checked class="h-4 w-4 text-sky-600 border-slate-300 focus:ring-sky-500">
+                            <span class="ml-2 text-slate-700">Siswa</span>
+                        </label>
+                        <label for="role-admin" class="flex items-center cursor-pointer">
+                            <input type="radio" id="role-admin" name="role" value="admin" class="h-4 w-4 text-sky-600 border-slate-300 focus:ring-sky-500">
+                            <span class="ml-2 text-slate-700">Admin / Guru BK</span>
+                        </label>
+                    </div>
+                </div>
+                <p id="login-error" class="text-sm text-red-500 text-center hidden">Username atau password salah!</p>
+                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 shadow-sm hover:shadow-md">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Container Aplikasi Siswa -->
+    <div id="student-app" class="hidden"></div>
+
+    <!-- Container Aplikasi Admin -->
+    <div id="admin-app" class="hidden"></div>
+
+    <!-- Modal for Content Viewing (Materi & Notes) -->
+    <div id="view-content-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="view-content-modal-title" class="text-lg font-bold"></h3>
+                <button onclick="closeModal('view-content-modal')" class="text-gray-400 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <div id="view-content-modal-body" class="p-6 overflow-y-auto custom-scrollbar">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Admin Notes Editing -->
+    <div id="notes-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="notes-modal-title" class="text-lg font-bold">Catatan Konseling</h3>
+                <button onclick="closeModal('notes-modal')" class="text-gray-400 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 flex-grow flex flex-col">
+                <textarea id="notes-textarea" class="w-full flex-grow p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-sky-500" placeholder="Tulis catatan sesi di sini..."></textarea>
+                <div class="mt-4 flex justify-end">
+                    <button id="save-notes-btn" class="bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-700 transition-colors">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- DATA SEMENTARA (DATABASE SIMULATION) ---
+        let currentUser = null;
+        
+        let users = [
+            { id: 1, username: 'aldebaran', name: 'Aldebaran Adam Syahputra', chatHistory: [], hasUnread: false },
+            { id: 2, username: 'anzillah', name: 'Anzillah Nurcahaya', chatHistory: [], hasUnread: false },
+            { id: 3, username: 'aulia', name: 'Aulia Danish', chatHistory: [], hasUnread: false },
+            { id: 4, username: 'chairil', name: 'Chairil Ahmad Fathir', chatHistory: [], hasUnread: false },
+            { id: 5, username: 'daiva', name: 'Daiva Bhagja Wangsapriyatman', chatHistory: [], hasUnread: false },
+            { id: 6, username: 'dellaluna', name: 'Dellaluna Nur Agustina', chatHistory: [], hasUnread: false },
+            { id: 7, username: 'denian', name: 'Denian Prasetya', chatHistory: [], hasUnread: false },
+            { id: 8, username: 'fadhillah', name: 'Fadhillah Nursyifa', chatHistory: [], hasUnread: false },
+            { id: 9, username: 'ghaisan', name: 'Ghaisan Rafani', chatHistory: [], hasUnread: false },
+            { id: 10, username: 'hasna', name: 'Hasna Fauziah Aqila', chatHistory: [], hasUnread: false },
+            { id: 11, username: 'heni', name: 'Heni Ramadhani', chatHistory: [], hasUnread: false },
+            { id: 12, username: 'iyan', name: 'Iyan Apriansa', chatHistory: [], hasUnread: false },
+            { id: 13, username: 'keihsa', name: 'Keihsa Anindya Danastri H', chatHistory: [], hasUnread: false },
+            { id: 14, username: 'kintan', name: 'Kintan Putri Haryono', chatHistory: [], hasUnread: false },
+            { id: 15, username: 'muhamad fajri', name: 'Muhamad Fajri Bakkah', chatHistory: [], hasUnread: false },
+            { id: 16, username: 'muhamad farhan', name: 'Muhamad Farhan', chatHistory: [], hasUnread: false },
+            { id: 17, username: 'muhammad nabil', name: 'Muhammad Nabil Fadlurrohman', chatHistory: [], hasUnread: false },
+            { id: 18, username: 'muhammad ridhan', name: 'Muhammad Ridhan Fajari', chatHistory: [], hasUnread: false },
+            { id: 19, username: 'muhammad rizqy', name: 'Muhammad Rizqy Irza Saputra', chatHistory: [], hasUnread: false },
+            { id: 20, username: 'nadia', name: 'Nadia Aprianca Putri', chatHistory: [], hasUnread: false },
+            { id: 21, username: 'naisya', name: 'Naisya Aufiya Indri', chatHistory: [], hasUnread: false },
+            { id: 22, username: 'nasya', name: 'Nasya Tri Febriyani', chatHistory: [], hasUnread: false },
+            { id: 23, username: 'naya', name: 'Naya Nardiana', chatHistory: [], hasUnread: false },
+            { id: 24, username: 'nur', name: 'Nur Maya Aini', chatHistory: [], hasUnread: false },
+            { id: 25, username: 'puspita', name: 'Puspita Widia Kusumaningsih', chatHistory: [], hasUnread: false },
+            { id: 26, username: 'puteri', name: 'Puteri Rosmayanti', chatHistory: [], hasUnread: false },
+            { id: 27, username: 'rafa', name: 'Rafa Yanwardi Azhar', chatHistory: [], hasUnread: false },
+            { id: 28, username: 'raka', name: 'Raka Alif Al Aziz', chatHistory: [], hasUnread: false },
+            { id: 29, username: 'resti', name: 'Resti Julianti', chatHistory: [], hasUnread: false },
+            { id: 30, username: 'siti', name: 'Siti Nurmalia Ramadhan', chatHistory: [], hasUnread: false },
+            { id: 31, username: 'sultan', name: 'Sultan Fardhan Anggestu', chatHistory: [], hasUnread: false },
+            { id: 32, username: 'sumayyah', name: 'Sumayyah Dema Nazihah', chatHistory: [], hasUnread: false },
+            { id: 33, username: 'syafira', name: 'Syafira Ramadhani', chatHistory: [], hasUnread: false },
+            { id: 34, username: 'syakilla', name: 'Syakilla Insan Sabria', chatHistory: [], hasUnread: false },
+            { id: 35, username: 'syifa', name: 'Syifa Amelia Dalimunthe', chatHistory: [], hasUnread: false },
+            { id: 36, username: 'zahratunnisa', name: 'Zahratunnisa', chatHistory: [], hasUnread: false }
+        ];
+
+        let appointments = [
+            { id: 1, student: 'Aldebaran Adam Syahputra', topic: 'Masalah Akademik', date: '2025-10-05', time: '10:00 - 10:45', status: 'Menunggu', notes: '' },
+            { id: 2, student: 'Anzillah Nurcahaya', topic: 'Perencanaan Karir', date: '2025-10-06', time: '11:00 - 11:45', status: 'Disetujui', notes: '' },
+            { id: 3, student: 'Aulia Danish', topic: 'Masalah Pribadi/Sosial', date: '2025-10-04', time: '09:00 - 09:45', status: 'Selesai', notes: 'Sesi berjalan dengan baik. Siswa menunjukkan minat pada bidang desain grafis. Perlu follow up terkait pilihan ekstrakurikuler.' },
+        ];
+
+        // --- GROUP CHAT: Load from localStorage or use default ---
+        let groupChatMessages = JSON.parse(localStorage.getItem('groupChatMessages')) || [
+            { sender: 'admin', text: 'Selamat datang di Ruang Konseling! Halaman ini berisi informasi umum untuk semua siswa.', time: '08:00' },
+            { sender: 'admin', text: 'Akan diadakan seminar perencanaan karir pada hari Jumat, 10 Oktober 2025. Info lebih lanjut akan diumumkan.', time: '08:05' },
+        ];
+        
+        if (!localStorage.getItem('groupChatMessages')) {
+            localStorage.setItem('groupChatMessages', JSON.stringify(groupChatMessages));
+        }
+
+        const materiData = [ 
+            { id: 1, title: "5 Cara Mengatasi Stres Menjelang Ujian", short: "Jangan biarkan stres mengganggumu. Pelajari cara efektif untuk tetap tenang dan fokus.", content: `<p>Menghadapi ujian memang seringkali menimbulkan stres. Namun, dengan strategi yang tepat, Anda bisa mengelolanya. Berikut adalah beberapa cara:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Belajar Teratur:</strong> Jangan menumpuk materi di akhir. Buat jadwal belajar dan patuhi.</li><li><strong>Istirahat Cukup:</strong> Pastikan Anda tidur 7-8 jam setiap malam. Otak butuh istirahat untuk memproses informasi.</li><li><strong>Olahraga Ringan:</strong> Aktivitas fisik seperti jalan kaki atau yoga dapat melepaskan endorfin yang membuat Anda merasa lebih baik.</li><li><strong>Makan Makanan Sehat:</strong> Hindari junk food dan perbanyak buah, sayur, dan air putih.</li><li><strong>Latihan Relaksasi:</strong> Coba teknik pernapasan dalam atau meditasi singkat untuk menenangkan pikiran.</li></ul>`, image: "https://placehold.co/600x400/a78bfa/ffffff?text=Stres+Ujian" }, 
+            { id: 2, title: "Manajemen Waktu yang Efektif untuk Pelajar", short: "Kunci sukses adalah bagaimana kamu mengatur waktumu. Yuk, jadi lebih produktif!", content: `<p>Manajemen waktu adalah skill penting. Coba terapkan beberapa tips berikut:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Gunakan Teknik Pomodoro:</strong> Belajar fokus selama 25 menit, lalu istirahat 5 menit. Ulangi.</li><li><strong>Buat To-Do List Harian:</strong> Tuliskan tugas-tugas yang harus diselesaikan setiap hari.</li><li><strong>Prioritaskan Tugas:</strong> Gunakan matriks Eisenhower (Penting & Mendesak) untuk menentukan mana yang harus dikerjakan lebih dulu.</li><li><strong>Hindari Multitasking:</strong> Fokus pada satu tugas pada satu waktu untuk hasil yang lebih baik.</li></ul>`, image: "https://placehold.co/600x400/7dd3fc/ffffff?text=Manajemen+Waktu" }, 
+            { id: 3, title: "Membangun Rasa Percaya Diri", short: "Kamu hebat dan mampu! Mari bangun kepercayaan diri untuk meraih impianmu.", content: `<p>Rasa percaya diri adalah fondasi kesuksesan. Berikut cara membangunnya:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Kenali Kelebihanmu:</strong> Buat daftar hal-hal yang kamu kuasai dan banggakan.</li><li><strong>Tetapkan Tujuan Kecil dan Capai:</strong> Keberhasilan kecil akan membangun momentum.</li><li><strong>Ubah Pikiran Negatif:</strong> Sadari ketika Anda berpikir negatif tentang diri sendiri dan gantilah dengan pikiran positif.</li><li><strong>Jaga Penampilan:</strong> Berpakaian rapi dan bersih bisa meningkatkan mood dan cara Anda memandang diri sendiri.</li></ul>`, image: "https://placehold.co/600x400/fca5a5/ffffff?text=Percaya+Diri" },
+            { id: 4, title: "Menetapkan Tujuan dengan Metode SMART", short: "Agar tujuanmu bukan sekadar mimpi, buatlah menjadi spesifik, terukur, dan relevan.", content: `<p>Metode SMART adalah cara cerdas untuk menetapkan tujuan. SMART adalah singkatan dari:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Specific (Spesifik):</strong> Tujuan harus jelas. Bukan "ingin nilai bagus", tapi "ingin mendapat nilai 90 pada ujian Matematika".</li><li><strong>Measurable (Terukur):</strong> Harus ada cara untuk mengukur kemajuanmu.</li><li><strong>Achievable (Dapat Dicapai):</strong> Tujuan harus realistis, tidak terlalu mudah tapi juga tidak terlalu sulit.</li><li><strong>Relevant (Relevan):</strong> Pastikan tujuan itu penting bagimu dan sejalan dengan cita-citamu.</li><li><strong>Time-bound (Batas Waktu):</strong> Beri tenggat waktu yang jelas untuk mencapai tujuan tersebut.</li></ul>`, image: "https://placehold.co/600x400/fdba74/ffffff?text=SMART+Goals" },
+            { id: 5, title: "Belajar dari Sebuah Kegagalan", short: "Gagal bukanlah akhir dari segalanya. Justru, itu adalah kesempatan terbaik untuk belajar.", content: `<p>Semua orang pernah gagal. Yang membedakan orang sukses adalah cara mereka merespons kegagalan. Ini yang bisa kamu lakukan:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Akui Perasaanmu:</strong> Tidak apa-apa merasa sedih atau kecewa. Akui perasaan itu, tapi jangan berlarut-larut.</li><li><strong>Analisis Apa yang Salah:</strong> Coba cari tahu apa penyebab kegagalanmu secara objektif, tanpa menyalahkan diri sendiri.</li><li><strong>Lihat Sebagai Pelajaran:</strong> Setiap kesalahan adalah pelajaran berharga. Apa yang bisa kamu lakukan secara berbeda di lain waktu?</li><li><strong>Coba Lagi dengan Strategi Baru:</strong> Jangan menyerah. Gunakan pelajaran yang kamu dapat untuk mencoba lagi dengan lebih baik.</li></ul>`, image: "https://placehold.co/600x400/818cf8/ffffff?text=Belajar+Gagal" },
+            { id: 6, title: "Kekuatan Pola Pikir Positif", short: "Cara kamu berpikir menentukan perasaan dan tindakanmu. Latih pikiranmu untuk melihat sisi baik.", content: `<p>Pola pikir positif bukan berarti mengabaikan masalah, tapi mendekatinya dengan optimisme. Latihlah dengan cara:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Syukur:</strong> Setiap hari, coba pikirkan tiga hal yang kamu syukuri. Ini akan mengubah fokusmu ke hal-hal baik.</li><li><strong>Gunakan Kata-kata Positif:</strong> Hindari mengeluh. Ganti "ini sulit sekali" dengan "ini adalah tantangan yang menarik".</li><li><strong>Lingkungi Diri dengan Hal Positif:</strong> Bertemanlah dengan orang-orang yang suportif dan optimis.</li><li><strong>Fokus pada Solusi:</strong> Jika ada masalah, jangan hanya memikirkan masalahnya. Pikirkan apa solusi yang bisa dilakukan.</li></ul>`, image: "https://placehold.co/600x400/6ee7b7/ffffff?text=Positive+Mindset" }
+        ];
+
+
+        // --- LOGIC OTENTIKASI & ROUTING ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            const role = e.target.role.value;
+            const loginError = document.getElementById('login-error');
+            loginError.classList.add('hidden');
+
+            if (role === 'admin') {
+                if (username === 'admin' && password === 'admin123') {
+                    currentUser = { name: 'Admin' };
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('admin-app').classList.remove('hidden');
+                    renderAdminView('admin-dashboard');
+                } else {
+                    loginError.textContent = 'Username atau password admin salah!';
+                    loginError.classList.remove('hidden');
+                }
+            } else { // role === 'siswa'
+                const foundUser = users.find(u => u.username.toLowerCase() === username.toLowerCase().replace(/\s+/g, ' '));
+                if (foundUser) {
+                    currentUser = foundUser;
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('student-app').classList.remove('hidden');
+                    renderStudentView('beranda');
+                } else {
+                    loginError.textContent = 'Siswa tidak ditemukan!';
+                    loginError.classList.remove('hidden');
+                }
+            }
+        });
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('student-app').classList.add('hidden');
+            document.getElementById('admin-app').classList.add('hidden');
+            document.getElementById('student-app').innerHTML = '';
+            document.getElementById('admin-app').innerHTML = '';
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('login-form').reset();
+        }
+
+        // --- RENDERER TAMPILAN SISWA ---
+        function renderStudentView(activePage) {
+            const studentAppContainer = document.getElementById('student-app');
+            studentAppContainer.innerHTML = `
+                <div class="max-w-lg mx-auto h-screen bg-slate-50 flex flex-col">
+                    <header id="student-header" class="bg-sky-600 text-white p-4 text-center flex justify-between items-center sticky top-0 z-10 mountain-bg">
+                         <!-- Header content is dynamic -->
+                    </header>
+                    <main class="flex-grow p-4 overflow-y-auto custom-scrollbar">
+                        <!-- Konten halaman siswa akan diinjeksi di sini -->
+                    </main>
+                    <nav class="border-t bg-white flex justify-around sticky bottom-0 shadow-t-md">
+                        ${getStudentNav(activePage)}
+                    </nav>
+                </div>`;
+            
+            studentAppContainer.querySelector('main').innerHTML = getStudentPageContent(activePage);
+            document.getElementById('student-header').innerHTML = getStudentHeader(activePage);
+            
+            if (activePage === 'janji-temu') {
+                document.getElementById('appointment-form').addEventListener('submit', handleNewAppointment);
+            }
+            if (activePage === 'chat') {
+                const chatInput = document.getElementById('student-chat-input');
+                document.getElementById('student-send-btn').addEventListener('click', () => sendStudentMessage(chatInput.value));
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendStudentMessage(chatInput.value);
+                });
+            }
+        }
+        
+        function getStudentHeader(pageId) {
+            const pageTitles = {
+                'beranda': `Halo, ${currentUser.name.split(' ')[0]}!`,
+                'janji-temu': 'Buat Janji Temu', 
+                'status-janji-temu': 'Status Janji Temu', 
+                'info-umum': 'Info Umum',
+                'chat': 'Chat Privat', 
+                'materi-motivasi': 'Materi Motivasi'
+            };
+            
+            const title = pageTitles[pageId] || 'Ruang Konseling';
+
+            return `
+                <div class="relative z-10"></div> <!-- spacer -->
+                <h1 class="text-xl font-bold relative z-10">${title}</h1>
+                <button onclick="logout()" title="Keluar" class="relative z-10">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                </button>
+            `;
+        }
+
+        function getStudentNav(activePage) {
+            const navItems = [
+                { id: 'beranda', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, label: 'Beranda' },
+                { id: 'status-janji-temu', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>`, label: 'Status' },
+                { id: 'info-umum', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>`, label: 'Info Umum' },
+                { id: 'chat', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-text"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>`, label: 'Chat' },
+                { id: 'materi-motivasi', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`, label: 'Motivasi' },
+            ];
+            return navItems.map(item => `
+                <button onclick="renderStudentView('${item.id}')" class="nav-item flex-1 p-3 text-center text-gray-500 hover:text-sky-600 transition-colors duration-300 ${activePage === item.id ? 'nav-active' : ''}">
+                    ${item.icon}
+                    <span class="text-xs font-medium">${item.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function getStudentPageContent(pageId) {
+             if (pageId === 'beranda') {
+                return `
+                    <div class="space-y-6">
+                        <!-- Welcome Card -->
+                        <div class="bg-white text-slate-800 rounded-xl p-6 relative flex items-center gap-4 overflow-hidden shadow-sm">
+                            <img src="https://placehold.co/100x100/dbeafe/1e40af?text=Bicara" alt="Ilustrasi Dukungan" class="rounded-lg flex-shrink-0">
+                            <div>
+                                <h2 class="text-xl font-bold">Butuh teman cerita?</h2>
+                                <p class="mt-1 text-slate-600 text-sm">Kami di sini untuk mendengarkan dan membantumu menemukan solusi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Main Menu -->
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-700 mb-3">Layanan Utama</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="renderStudentView('janji-temu')" class="bg-white p-4 rounded-xl shadow-sm text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="mx-auto bg-sky-100 text-sky-600 w-12 h-12 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-plus"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><line x1="16" x2="22" y1="19" y2="19"/><line x1="19" x2="19" y1="16" y2="22"/></svg>
+                                    </div>
+                                    <p class="mt-2 font-semibold text-sm">Buat Janji Temu</p>
+                                    <p class="text-xs text-slate-500">Atur jadwal konseling</p>
+                                </button>
+                                <button onclick="renderStudentView('chat')" class="bg-white p-4 rounded-xl shadow-sm text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="mx-auto bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-text"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>
+                                    </div>
+                                    <p class="mt-2 font-semibold text-sm">Chat Privat</p>
+                                    <p class="text-xs text-slate-500">Konsultasi langsung</p>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Featured Article -->
+                        <div>
+                             <h3 class="text-lg font-bold text-slate-700 mb-3">Artikel Pilihan</h3>
+                             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                                <img src="https://placehold.co/600x300/e0f2fe/0ea5e9?text=Puncak" alt="Artikel Pilihan" class="w-full h-32 object-cover">
+                                <div class="p-4">
+                                    <h4 class="font-bold">Kekuatan Pola Pikir Positif</h4>
+                                    <p class="text-sm text-slate-600 mt-1">Cara kamu berpikir menentukan perasaan dan tindakanmu. Latih pikiranmu untuk melihat sisi baik.</p>
+                                    <button onclick="openModal('view-content-modal', 'materi', 6)" class="mt-3 text-sm text-sky-600 hover:underline font-semibold">Baca selengkapnya</button>
+                                </div>
+                             </div>
+                        </div>
+
+                    </div>
+                `;
+            }
+            if (pageId === 'janji-temu') {
+                return `<form id="appointment-form" class="space-y-4"><div><label for="topic" class="block text-sm font-medium text-gray-700">Topik Konseling</label><select id="topic" name="topic" class="mt-1 block w-full pl-3 pr-10 py-3 bg-white border-gray-300 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm rounded-md" required><option>Masalah Akademik</option><option>Perencanaan Karir</option><option>Masalah Pribadi/Sosial</option></select></div><div><label for="date" class="block text-sm font-medium text-gray-700">Pilih Tanggal</label><input type="date" id="date" name="date" class="mt-1 focus:ring-sky-500 focus:border-sky-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2.5 px-3" required></div><div><label for="time" class="block text-sm font-medium text-gray-700">Pilih Waktu</label><select id="time" name="time" class="mt-1 block w-full pl-3 pr-10 py-3 bg-white border-gray-300 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm rounded-md" required><option>09:00 - 09:45</option><option>10:00 - 10:45</option><option>11:00 - 11:45</option></select></div><div><button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-sky-600 hover:bg-sky-700">Kirim Permintaan</button></div></form>`;
+            }
+            if (pageId === 'status-janji-temu') {
+                const myAppointments = appointments.filter(a => a.student === currentUser.name);
+                if (myAppointments.length === 0) {
+                    return `<div class="text-center text-gray-500 mt-10"><img src="https://placehold.co/200x200/f0f9ff/bae6fd?text=Jelajahi" alt="Belum ada janji temu" class="mx-auto mb-4 opacity-75 rounded-lg"><h3 class="text-lg font-semibold">Belum Ada Janji Temu</h3><p class="text-sm text-slate-500">Buat janji temu barumu di halaman Beranda.</p></div>`;
+                }
+                const statusInfo = { 
+                    'Menunggu': { color: 'bg-yellow-100 text-yellow-800', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>` }, 
+                    'Disetujui': { color: 'bg-green-100 text-green-800', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>` }, 
+                    'Ditolak': { color: 'bg-red-100 text-red-800', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>` },
+                    'Selesai': { color: 'bg-slate-100 text-slate-800', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-check"><path d="M12 22H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/><path d="m9 16 2 2 4-4"/><path d="M22 12H2"/><path d="M5.5 12H11c.28 0 .5.22.5.5V13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-.5c0-.28.22-.5.5-.5z"/></svg>` } 
+                };
+                return `<div class="space-y-4">${myAppointments.map(a => `<div class="bg-white p-4 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold">${a.topic}</p>
+                            <p class="text-sm text-slate-500">${a.date} &bull; ${a.time}</p>
+                        </div>
+                        <span class="flex items-center gap-1.5 px-2 py-1 font-semibold leading-tight rounded-full text-xs ${statusInfo[a.status].color}">${statusInfo[a.status].icon} ${a.status}</span>
+                    </div>
+                    ${a.status === 'Selesai' && a.notes ? `<div class="mt-3 pt-3 border-t"><button onclick="openModal('view-content-modal', 'catatan', ${a.id})" class="text-sm text-sky-600 hover:underline font-semibold">Lihat Catatan Konseling</button></div>` : ''}
+                </div>`).join('')}</div>`;
+            }
+            if (pageId === 'info-umum') {
+                return `
+                    <div class="space-y-4">
+                        ${groupChatMessages.slice().reverse().map(msg => `
+                            <div class="p-4 rounded-lg broadcast-bubble">
+                                <p class="text-sm text-slate-800">${msg.text}</p>
+                                <p class="text-xs text-slate-500 text-right mt-2">Admin &bull; ${msg.time}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            if (pageId === 'chat') {
+                 return `
+                    <div class="h-full flex flex-col">
+                        <div id="student-chat-window" class="flex-grow bg-white p-4 rounded-lg overflow-y-auto custom-scrollbar space-y-4">
+                            ${currentUser.chatHistory.map(chat => `
+                                <div class="flex items-start ${chat.sender === 'user' ? 'justify-end' : ''} gap-2.5">
+                                    <div class="p-3 rounded-lg max-w-xs ${chat.sender === 'user' ? 'chat-bubble-user rounded-br-none' : 'chat-bubble-admin rounded-bl-none'}">
+                                        <p class="text-sm">${chat.text}</p>
+                                        <p class="text-xs opacity-75 mt-1 text-right">${chat.time}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4 flex">
+                            <input type="text" id="student-chat-input" placeholder="Ketik pesanmu..." class="flex-grow p-3 border border-slate-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <button id="student-send-btn" class="bg-sky-600 text-white p-3 rounded-r-md hover:bg-sky-700 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg></button>
+                        </div>
+                    </div>
+                `;
+            }
+             if (pageId === 'materi-motivasi') {
+                 return `<div class="space-y-4">${materiData.map(materi => `<div class="bg-white p-4 rounded-lg shadow-sm flex items-start space-x-4"><img src="${materi.image}" alt="[Gambar ilustrasi untuk ${materi.title}]" class="w-24 h-24 object-cover rounded-md flex-shrink-0"><div><h3 class="font-bold text-md">${materi.title}</h3><p class="text-sm text-gray-600 mt-1">${materi.short}</p><button onclick="openModal('view-content-modal', 'materi', ${materi.id})" class="mt-2 text-sm text-sky-600 hover:text-sky-800 font-semibold">Baca Selengkapnya &rarr;</button></div></div>`).join('')}</div>`;
+            }
+            return ``;
+        }
+
+        function handleNewAppointment(e) {
+            e.preventDefault();
+            const newAppointment = {
+                id: Date.now(),
+                student: currentUser.name,
+                topic: e.target.topic.value,
+                date: e.target.date.value,
+                time: e.target.time.value,
+                status: 'Menunggu',
+                notes: '',
+            };
+            appointments.unshift(newAppointment);
+            alert('Permintaan janji temu berhasil dikirim!');
+            renderStudentView('status-janji-temu');
+        }
+
+        function sendStudentMessage(text) {
+            const messageText = text.trim();
+            if (!messageText) return;
+            const newMessage = {
+                sender: 'user',
+                text: messageText,
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+            currentUser.chatHistory.push(newMessage);
+            const userInDb = users.find(u => u.id === currentUser.id);
+            if (userInDb) {
+                userInDb.hasUnread = true;
+            }
+            document.getElementById('student-chat-input').value = '';
+            renderStudentView('chat');
+            setTimeout(() => document.querySelector('#student-chat-window').scrollTop = 9999, 0); // scroll to bottom
+        }
+
+
+        // --- RENDERER TAMPILAN ADMIN ---
+        function renderAdminView(activePage, activeUserId = null) {
+            if (activePage === 'admin-chat' && activeUserId) {
+                const userToView = users.find(u => u.id === activeUserId);
+                if (userToView) {
+                    userToView.hasUnread = false;
+                }
+            }
+            const adminAppContainer = document.getElementById('admin-app');
+            adminAppContainer.innerHTML = `
+                <div class="flex flex-col md:flex-row min-h-screen">
+                    <nav class="bg-white md:w-64 p-4 shadow-lg flex flex-col flex-shrink-0">
+                        <div>
+                            <div class="flex items-center gap-3 mb-8 p-2">
+                                <div class="bg-sky-600 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></div>
+                                <h1 class="text-xl font-bold text-slate-700">Admin Konseling</h1>
+                            </div>
+                            <ul class="space-y-2">
+                                ${getAdminNav(activePage)}
+                            </ul>
+                        </div>
+                        <div class="mt-auto"><button onclick="logout()" class="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>Keluar</button></div>
+                    </nav>
+                    <main class="flex-1 p-6 md:p-8 overflow-auto bg-slate-50 custom-scrollbar">
+                        ${getAdminPageContent(activePage, activeUserId)}
+                    </main>
+                </div>`;
+             if (activePage === 'admin-chat' && activeUserId) {
+                const chatInput = document.getElementById('admin-chat-input');
+                document.getElementById('admin-send-btn').addEventListener('click', () => sendAdminMessage(activeUserId, chatInput.value));
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendAdminMessage(activeUserId, chatInput.value);
+                });
+                setTimeout(() => document.querySelector('#admin-chat-window').scrollTop = 9999, 0);
+             }
+             if (activePage === 'admin-info-umum') {
+                const infoInput = document.getElementById('admin-info-input');
+                document.getElementById('admin-info-send-btn').addEventListener('click', () => sendGroupMessage(infoInput.value));
+                infoInput.addEventListener('keypress', (e) => {
+                     if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendGroupMessage(infoInput.value);
+                     }
+                });
+             }
+        }
+
+        function getAdminNav(activePage) {
+            const hasChatNotification = users.some(u => u.hasUnread);
+            const navItems = [
+                { id: 'admin-dashboard', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>`, label: 'Dashboard' },
+                { id: 'admin-janji-temu', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`, label: 'Janji Temu' },
+                { id: 'admin-chat', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Pengguna & Chat' },
+                { id: 'admin-info-umum', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`, label: 'Info Umum' },
+            ];
+             return navItems.map(item => {
+                let notificationDot = '';
+                if (item.id === 'admin-chat' && hasChatNotification) {
+                    notificationDot = '<span class="absolute right-2 top-3 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>';
+                }
+                return `<li class="relative"><button onclick="renderAdminView('${item.id}')" class="admin-nav-link w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-sky-50 text-slate-600 font-medium ${activePage === item.id ? 'active' : ''}">${item.icon}${item.label}</button>${notificationDot}</li>`;
+             }).join('');
+        }
+        
+        function getAdminPageContent(pageId, activeUserId) {
+             if (pageId === 'admin-dashboard') {
+                const waitingAppointments = appointments.filter(a => a.status === 'Menunggu').length;
+                const completedAppointments = appointments.filter(a => a.status === 'Selesai').length;
+                const totalAppointments = appointments.length;
+                return `<h2 class="text-3xl font-bold text-slate-800 mb-6">Dashboard Admin</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md relative overflow-hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute -right-4 -bottom-4 h-20 w-20 text-slate-100"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                            <h4 class="text-slate-500 font-medium relative z-10">Permintaan Baru</h4>
+                            <p class="text-4xl font-bold mt-2 text-sky-600 relative z-10">${waitingAppointments}</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md relative overflow-hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute -right-4 -bottom-4 h-20 w-20 text-slate-100"><path d="M12 22H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/><path d="m9 16 2 2 4-4"/><path d="M22 12H2"/><path d="M5.5 12H11c.28 0 .5.22.5.5V13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-.5c0-.28.22-.5.5-.5z"/></svg>
+                            <h4 class="text-slate-500 font-medium relative z-10">Sesi Selesai</h4>
+                            <p class="text-4xl font-bold mt-2 text-green-600 relative z-10">${completedAppointments}</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md relative overflow-hidden">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute -right-4 -bottom-4 h-20 w-20 text-slate-100"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <h4 class="text-slate-500 font-medium relative z-10">Total Janji Temu</h4>
+                            <p class="text-4xl font-bold mt-2 relative z-10">${totalAppointments}</p>
+                        </div>
+                    </div>`;
+             }
+             if (pageId === 'admin-janji-temu') {
+                const statusColors = { 'Menunggu': 'bg-yellow-100 text-yellow-800', 'Disetujui': 'bg-green-100 text-green-800', 'Ditolak': 'bg-red-100 text-red-800', 'Selesai': 'bg-slate-100 text-slate-800' };
+                return `<h2 class="text-3xl font-bold text-slate-800 mb-6">Kelola Janji Temu</h2><div class="bg-white p-4 sm:p-6 rounded-xl shadow-md overflow-x-auto"><table class="w-full text-sm text-left text-slate-500">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50"><tr><th scope="col" class="px-6 py-3">Siswa</th><th scope="col" class="px-6 py-3">Topik</th><th scope="col" class="px-6 py-3">Jadwal</th><th scope="col" class="px-6 py-3">Status</th><th scope="col" class="px-6 py-3">Aksi</th></tr></thead>
+                    <tbody>${appointments.map(a => `<tr class="bg-white border-b"><td class="px-6 py-4 font-medium text-slate-900">${a.student}</td><td class="px-6 py-4">${a.topic}</td><td class="px-6 py-4">${a.date} &bull; ${a.time}</td><td class="px-6 py-4"><span class="px-2 py-1 font-semibold leading-tight rounded-full text-xs ${statusColors[a.status]}">${a.status}</span></td><td class="px-6 py-4">${getAdminActions(a)}</td></tr>`).join('')}</tbody>
+                </table></div>`;
+             }
+             if (pageId === 'admin-chat') {
+                const chatUser = users.find(u => u.id === activeUserId);
+                return `
+                    <h2 class="text-3xl font-bold text-slate-800 mb-6">Pengguna & Chat</h2>
+                    <div class="flex flex-col md:flex-row gap-6 h-[calc(100vh-150px)]">
+                        <div class="md:w-1/3 bg-white p-4 rounded-xl shadow-md flex flex-col">
+                            <h3 class="font-bold mb-4">Daftar Siswa</h3>
+                            <ul class="space-y-2 overflow-y-auto custom-scrollbar">${users.map(u => {
+                                const unreadDot = u.hasUnread ? '<span class="block h-2 w-2 rounded-full bg-sky-500"></span>' : '';
+                                return `<li><button onclick="renderAdminView('admin-chat', ${u.id})" class="w-full flex justify-between items-center text-left p-3 rounded-lg ${activeUserId === u.id ? 'bg-sky-100 text-sky-800' : 'hover:bg-slate-100'}"><span>${u.name}</span>${unreadDot}</button></li>`
+                            }).join('')}</ul>
+                        </div>
+                        <div class="md:w-2/3 bg-white rounded-xl shadow-md flex flex-col">
+                            ${activeUserId && chatUser ? `
+                                <div class="p-4 border-b font-bold text-slate-700">Chat dengan ${chatUser.name}</div>
+                                <div id="admin-chat-window" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                                    ${chatUser.chatHistory.map(chat => `
+                                        <div class="flex items-start ${chat.sender === 'admin' ? 'justify-end' : ''}">
+                                            <div class="p-3 rounded-lg max-w-xs ${chat.sender === 'admin' ? 'chat-bubble-user rounded-bl-none' : 'chat-bubble-admin rounded-br-none'}">
+                                                <p class="text-sm">${chat.text}</p>
+                                                <p class="text-xs opacity-75 mt-1 text-right">${chat.time}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="p-4 border-t flex">
+                                    <input type="text" id="admin-chat-input" placeholder="Ketik balasan..." class="flex-grow p-2 border border-slate-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                    <button id="admin-send-btn" class="bg-sky-600 text-white p-3 rounded-r-md hover:bg-sky-700"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                                </div>
+                            ` : `<div class="flex items-center justify-center h-full text-slate-500"><p>Pilih siswa untuk memulai chat.</p></div>`}
+                        </div>
+                    </div>
+                `;
+             }
+             if(pageId === 'admin-info-umum') {
+                return `
+                    <h2 class="text-3xl font-bold text-slate-800 mb-6">Informasi Umum</h2>
+                    <div class="bg-white rounded-xl shadow-md flex flex-col h-[calc(100vh-150px)]">
+                        <div class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                             ${groupChatMessages.slice().reverse().map(msg => `
+                                <div class="p-4 rounded-lg broadcast-bubble">
+                                    <p class="text-sm text-slate-800">${msg.text}</p>
+                                    <p class="text-xs text-slate-500 text-right mt-2">Admin &bull; ${msg.time}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="p-4 border-t">
+                            <textarea id="admin-info-input" placeholder="Ketik pengumuman baru..." rows="3" class="w-full p-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                            <button id="admin-info-send-btn" class="mt-2 w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">Kirim Informasi</button>
+                        </div>
+                    </div>
+                `;
+             }
+             return ``;
+        }
+        
+        function getAdminActions(appointment) {
+            if (appointment.status === 'Menunggu') {
+                return `<div class="flex gap-2"><button onclick="updateAppointmentStatus(${appointment.id}, 'Disetujui')" class="text-green-600 hover:text-green-900 font-medium">Setujui</button><button onclick="updateAppointmentStatus(${appointment.id}, 'Ditolak')" class="text-red-600 hover:text-red-900 font-medium">Tolak</button></div>`;
+            }
+            if (appointment.status === 'Disetujui') {
+                return `<button onclick="updateAppointmentStatus(${appointment.id}, 'Selesai')" class="text-sky-600 hover:text-sky-900 font-medium">Tandai Selesai</button>`;
+            }
+             if (appointment.status === 'Selesai') {
+                return `<button onclick="openNotesModal(${appointment.id})" class="text-slate-600 hover:text-slate-900 font-medium">Catatan</button>`;
+            }
+            return '-';
+        }
+
+        function updateAppointmentStatus(id, newStatus) {
+            const appointment = appointments.find(a => a.id === id);
+            if (appointment) {
+                appointment.status = newStatus;
+                renderAdminView('admin-janji-temu');
+            }
+        }
+
+        function sendAdminMessage(userId, text) {
+            const messageText = text.trim();
+            if (!messageText) return;
+            const chatUser = users.find(u => u.id === userId);
+            const newMessage = {
+                sender: 'admin',
+                text: messageText,
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+            chatUser.chatHistory.push(newMessage);
+            renderAdminView('admin-chat', userId);
+        }
+
+        function sendGroupMessage(text) {
+            const messageText = text.trim();
+            if (!messageText) return;
+            const newMessage = {
+                sender: 'admin',
+                text: messageText,
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+            groupChatMessages.push(newMessage);
+            // Save to localStorage
+            localStorage.setItem('groupChatMessages', JSON.stringify(groupChatMessages));
+            renderAdminView('admin-info-umum');
+        }
+
+        // --- MODAL LOGIC ---
+        function openModal(modalId, type, dataId) {
+            const modal = document.getElementById(modalId);
+            const modalTitle = document.getElementById('view-content-modal-title');
+            const modalBody = document.getElementById('view-content-modal-body');
+
+            if (type === 'materi') {
+                const materi = materiData.find(m => m.id === dataId);
+                if (materi) {
+                    modalTitle.innerText = materi.title;
+                    modalBody.innerHTML = `<img src="${materi.image}" alt="[Gambar ilustrasi untuk ${materi.title}]" class="w-full h-48 object-cover rounded-md mb-4">${materi.content}`;
+                }
+            } else if (type === 'catatan') {
+                const appointment = appointments.find(a => a.id === dataId);
+                if (appointment) {
+                    modalTitle.innerText = `Catatan Konseling: ${appointment.topic}`;
+                    modalBody.innerHTML = `<p class="text-slate-600 whitespace-pre-wrap">${appointment.notes || 'Belum ada catatan.'}</p>`;
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+        
+        function openNotesModal(appointmentId) {
+             const modal = document.getElementById('notes-modal');
+             const appointment = appointments.find(a => a.id === appointmentId);
+             if(appointment) {
+                document.getElementById('notes-modal-title').innerText = `Catatan untuk ${appointment.student}`;
+                document.getElementById('notes-textarea').value = appointment.notes;
+                document.getElementById('save-notes-btn').onclick = () => saveNotes(appointmentId);
+                modal.classList.remove('hidden');
+             }
+        }
+        
+        function saveNotes(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                appointment.notes = document.getElementById('notes-textarea').value;
+                alert('Catatan berhasil disimpan!');
+                closeModal('notes-modal');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
