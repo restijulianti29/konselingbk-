@@ -66,7 +66,7 @@
                 </div>
                 <div id="class-input-container">
                     <label for="student_class" class="block text-sm font-medium text-slate-600">Kelas</label>
-                    <input type="text" id="student_class" name="student_class" required class="w-full mt-1 px-4 py-3 bg-white/70 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all" placeholder="contoh: XII IPA 1">
+                    <input type="text" id="student_class" name="student_class" required class="w-full mt-1 px-4 py-3 bg-white/70 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all" placeholder="contoh: XII D">
                 </div>
                 <div class="space-y-2">
                      <label class="block text-sm font-medium text-slate-600">Masuk sebagai:</label>
@@ -124,69 +124,73 @@
 
 
     <script>
-        // --- DATA SEMENTARA (DATABASE SIMULATION) ---
+        // --- DATA SEMENTARA (DATABASE SIMULATION W/ LOCALSTORAGE) ---
         let currentUser = null;
+
+        function initializeData(key, defaultValue) {
+            const storedData = localStorage.getItem(key);
+            if (!storedData) {
+                localStorage.setItem(key, JSON.stringify(defaultValue));
+                return defaultValue;
+            }
+            return JSON.parse(storedData);
+        }
+
+        let users = initializeData('counseling_users', [
+            { id: 1, username: 'aldebaran', name: 'Aldebaran Adam Syahputra', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 2, username: 'anzillah', name: 'Anzillah Nurcahaya', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 3, username: 'aulia', name: 'Aulia Danish', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 4, username: 'chairil', name: 'Chairil Ahmad Fathir', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 5, username: 'daiva', name: 'Daiva Bhagja Wangsapriyatman', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 6, username: 'dellaluna', name: 'Dellaluna Nur Agustina', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 7, username: 'denian', name: 'Denian Prasetya', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 8, username: 'fadhillah', name: 'Fadhillah Nursyifa', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 9, username: 'ghaisan', name: 'Ghaisan Rafani', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 10, username: 'hasna', name: 'Hasna Fauziah Aqila', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 11, username: 'heni', name: 'Heni Ramadhani', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 12, username: 'iyan', name: 'Iyan Apriansa', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 13, username: 'keihsa', name: 'Keihsa Anindya Danastri H', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 14, username: 'kintan', name: 'Kintan Putri Haryono', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 15, username: 'muhamad fajri', name: 'Muhamad Fajri Bakkah', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 16, username: 'muhamad farhan', name: 'Muhamad Farhan', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 17, username: 'muhammad nabil', name: 'Muhammad Nabil Fadlurrohman', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 18, username: 'muhammad ridhan', name: 'Muhammad Ridhan Fajari', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 19, username: 'muhammad rizqy', name: 'Muhammad Rizqy Irza Saputra', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 20, username: 'nadia', name: 'Nadia Aprianca Putri', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 21, username: 'naisya', name: 'Naisya Aufiya Indri', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 22, username: 'nasya', name: 'Nasya Tri Febriyani', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 23, username: 'naya', name: 'Naya Nardiana', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 24, username: 'nur', name: 'Nur Maya Aini', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 25, username: 'puspita', name: 'Puspita Widia Kusumaningsih', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 26, username: 'puteri', name: 'Puteri Rosmayanti', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 27, username: 'rafa', name: 'Rafa Yanwardi Azhar', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 28, username: 'raka', name: 'Raka Alif Al Aziz', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 29, username: 'resti', name: 'Resti Julianti', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 30, username: 'siti', name: 'Siti Nurmalia Ramadhan', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 31, username: 'sultan', name: 'Sultan Fardhan Anggestu', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 32, username: 'sumayyah', name: 'Sumayyah Dema Nazihah', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 33, username: 'syafira', name: 'Syafira Ramadhani', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 34, username: 'syakilla', name: 'Syakilla Insan Sabria', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 35, username: 'syifa', name: 'Syifa Amelia Dalimunthe', class: 'XII D', chatHistory: [], hasUnread: false },
+            { id: 36, username: 'zahratunnisa', name: 'Zahratunnisa', class: 'XII D', chatHistory: [], hasUnread: false }
+        ]);
         
-        let users = [
-            { id: 1, username: 'aldebaran', name: 'Aldebaran Adam Syahputra', class: 'XII IPA 1', chatHistory: [], hasUnread: false },
-            { id: 2, username: 'anzillah', name: 'Anzillah Nurcahaya', class: 'XII IPA 1', chatHistory: [], hasUnread: false },
-            { id: 3, username: 'aulia', name: 'Aulia Danish', class: 'XII IPA 2', chatHistory: [], hasUnread: false },
-            { id: 4, username: 'chairil', name: 'Chairil Ahmad Fathir', class: 'XII IPA 2', chatHistory: [], hasUnread: false },
-            { id: 5, username: 'daiva', name: 'Daiva Bhagja Wangsapriyatman', class: 'XII IPS 1', chatHistory: [], hasUnread: false },
-            { id: 6, username: 'dellaluna', name: 'Dellaluna Nur Agustina', class: 'XII IPS 1', chatHistory: [], hasUnread: false },
-            { id: 7, username: 'denian', name: 'Denian Prasetya', class: 'XII IPS 2', chatHistory: [], hasUnread: false },
-            { id: 8, username: 'fadhillah', name: 'Fadhillah Nursyifa', class: 'XII IPS 2', chatHistory: [], hasUnread: false },
-            { id: 9, username: 'ghaisan', name: 'Ghaisan Rafani', class: 'XI IPA 1', chatHistory: [], hasUnread: false },
-            { id: 10, username: 'hasna', name: 'Hasna Fauziah Aqila', class: 'XI IPA 1', chatHistory: [], hasUnread: false },
-            { id: 11, username: 'heni', name: 'Heni Ramadhani', class: 'XI IPA 2', chatHistory: [], hasUnread: false },
-            { id: 12, username: 'iyan', name: 'Iyan Apriansa', class: 'XI IPA 2', chatHistory: [], hasUnread: false },
-            { id: 13, username: 'keihsa', name: 'Keihsa Anindya Danastri H', class: 'XI IPS 1', chatHistory: [], hasUnread: false },
-            { id: 14, username: 'kintan', name: 'Kintan Putri Haryono', class: 'XI IPS 1', chatHistory: [], hasUnread: false },
-            { id: 15, username: 'muhamad fajri', name: 'Muhamad Fajri Bakkah', class: 'XI IPS 2', chatHistory: [], hasUnread: false },
-            { id: 16, username: 'muhamad farhan', name: 'Muhamad Farhan', class: 'XI IPS 2', chatHistory: [], hasUnread: false },
-            { id: 17, username: 'muhammad nabil', name: 'Muhammad Nabil Fadlurrohman', class: 'X-A', chatHistory: [], hasUnread: false },
-            { id: 18, username: 'muhammad ridhan', name: 'Muhammad Ridhan Fajari', class: 'X-A', chatHistory: [], hasUnread: false },
-            { id: 19, username: 'muhammad rizqy', name: 'Muhammad Rizqy Irza Saputra', class: 'X-B', chatHistory: [], hasUnread: false },
-            { id: 20, username: 'nadia', name: 'Nadia Aprianca Putri', class: 'X-B', chatHistory: [], hasUnread: false },
-            { id: 21, username: 'naisya', name: 'Naisya Aufiya Indri', class: 'X-C', chatHistory: [], hasUnread: false },
-            { id: 22, username: 'nasya', name: 'Nasya Tri Febriyani', class: 'X-C', chatHistory: [], hasUnread: false },
-            { id: 23, username: 'naya', name: 'Naya Nardiana', class: 'X-D', chatHistory: [], hasUnread: false },
-            { id: 24, username: 'nur', name: 'Nur Maya Aini', class: 'X-D', chatHistory: [], hasUnread: false },
-            { id: 25, username: 'puspita', name: 'Puspita Widia Kusumaningsih', class: 'XII IPA 1', chatHistory: [], hasUnread: false },
-            { id: 26, username: 'puteri', name: 'Puteri Rosmayanti', class: 'XII IPA 1', chatHistory: [], hasUnread: false },
-            { id: 27, username: 'rafa', name: 'Rafa Yanwardi Azhar', class: 'XII IPA 2', chatHistory: [], hasUnread: false },
-            { id: 28, username: 'raka', name: 'Raka Alif Al Aziz', class: 'XII IPA 2', chatHistory: [], hasUnread: false },
-            { id: 29, username: 'resti', name: 'Resti Julianti', class: 'XII IPS 1', chatHistory: [], hasUnread: false },
-            { id: 30, username: 'siti', name: 'Siti Nurmalia Ramadhan', class: 'XII IPS 1', chatHistory: [], hasUnread: false },
-            { id: 31, username: 'sultan', name: 'Sultan Fardhan Anggestu', class: 'XII IPS 2', chatHistory: [], hasUnread: false },
-            { id: 32, username: 'sumayyah', name: 'Sumayyah Dema Nazihah', class: 'XII IPS 2', chatHistory: [], hasUnread: false },
-            { id: 33, username: 'syafira', name: 'Syafira Ramadhani', class: 'XI IPA 1', chatHistory: [], hasUnread: false },
-            { id: 34, username: 'syakilla', name: 'Syakilla Insan Sabria', class: 'XI IPA 1', chatHistory: [], hasUnread: false },
-            { id: 35, username: 'syifa', name: 'Syifa Amelia Dalimunthe', class: 'XI IPA 2', chatHistory: [], hasUnread: false },
-            { id: 36, username: 'zahratunnisa', name: 'Zahratunnisa', class: 'XI IPA 2', chatHistory: [], hasUnread: false }
-        ];
-        
-        let counselors = [
+        let counselors = initializeData('counseling_counselors', [
             { id: 1, name: 'Drs. Budi Setiawan', phone: '081234567890' },
             { id: 2, name: 'S.Pd. Siti Aminah', phone: '081209876543' }
-        ];
+        ]);
 
-        let appointments = [
+        let appointments = initializeData('counseling_appointments', [
             { id: 1, student: 'Aldebaran Adam Syahputra', topic: 'Masalah Akademik', date: '2025-10-05', time: '10:00 - 10:45', status: 'Menunggu', notes: '', counselorId: 1, counselorName: 'Drs. Budi Setiawan' },
             { id: 2, student: 'Anzillah Nurcahaya', topic: 'Perencanaan Karir', date: '2025-10-06', time: '11:00 - 11:45', status: 'Disetujui', notes: '', counselorId: 2, counselorName: 'S.Pd. Siti Aminah' },
             { id: 3, student: 'Aulia Danish', topic: 'Masalah Pribadi/Sosial', date: '2025-10-04', time: '09:00 - 09:45', status: 'Selesai', notes: 'Sesi berjalan dengan baik. Siswa menunjukkan minat pada bidang desain grafis. Perlu follow up terkait pilihan ekstrakurikuler.', counselorId: 1, counselorName: 'Drs. Budi Setiawan' },
-        ];
+        ]);
 
-        // --- GROUP CHAT: Load from localStorage or use default ---
-        let groupChatMessages = JSON.parse(localStorage.getItem('groupChatMessages')) || [
+        let groupChatMessages = initializeData('counseling_groupChatMessages', [
             { sender: 'admin', text: 'Selamat datang di Ruang Konseling! Halaman ini berisi informasi umum untuk semua siswa.', time: '08:00' },
             { sender: 'admin', text: 'Akan diadakan seminar perencanaan karir pada hari Jumat, 10 Oktober 2025. Info lebih lanjut akan diumumkan.', time: '08:05' },
-        ];
+        ]);
         
-        if (!localStorage.getItem('groupChatMessages')) {
-            localStorage.setItem('groupChatMessages', JSON.stringify(groupChatMessages));
-        }
-
         const materiData = [ 
             { id: 1, title: "5 Cara Mengatasi Stres Menjelang Ujian", short: "Jangan biarkan stres mengganggumu. Pelajari cara efektif untuk tetap tenang dan fokus.", content: `<p>Menghadapi ujian memang seringkali menimbulkan stres. Namun, dengan strategi yang tepat, Anda bisa mengelolanya. Berikut adalah beberapa cara:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Belajar Teratur:</strong> Jangan menumpuk materi di akhir. Buat jadwal belajar dan patuhi.</li><li><strong>Istirahat Cukup:</strong> Pastikan Anda tidur 7-8 jam setiap malam. Otak butuh istirahat untuk memproses informasi.</li><li><strong>Olahraga Ringan:</strong> Aktivitas fisik seperti jalan kaki atau yoga dapat melepaskan endorfin yang membuat Anda merasa lebih baik.</li><li><strong>Makan Makanan Sehat:</strong> Hindari junk food dan perbanyak buah, sayur, dan air putih.</li><li><strong>Latihan Relaksasi:</strong> Coba teknik pernapasan dalam atau meditasi singkat untuk menenangkan pikiran.</li></ul>`, image: "https://placehold.co/600x400/a78bfa/ffffff?text=Stres+Ujian" }, 
             { id: 2, title: "Manajemen Waktu yang Efektif untuk Pelajar", short: "Kunci sukses adalah bagaimana kamu mengatur waktumu. Yuk, jadi lebih produktif!", content: `<p>Manajemen waktu adalah skill penting. Coba terapkan beberapa tips berikut:</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong>Gunakan Teknik Pomodoro:</strong> Belajar fokus selama 25 menit, lalu istirahat 5 menit. Ulangi.</li><li><strong>Buat To-Do List Harian:</strong> Tuliskan tugas-tugas yang harus diselesaikan setiap hari.</li><li><strong>Prioritaskan Tugas:</strong> Gunakan matriks Eisenhower (Penting & Mendesak) untuk menentukan mana yang harus dikerjakan lebih dulu.</li><li><strong>Hindari Multitasking:</strong> Fokus pada satu tugas pada satu waktu untuk hasil yang lebih baik.</li></ul>`, image: "https://placehold.co/600x400/7dd3fc/ffffff?text=Manajemen+Waktu" }, 
@@ -483,6 +487,7 @@
                 counselorName: selectedCounselor.name,
             };
             appointments.unshift(newAppointment);
+            localStorage.setItem('counseling_appointments', JSON.stringify(appointments));
             alert('Permintaan janji temu berhasil dikirim!');
             renderStudentView('status-janji-temu');
         }
@@ -500,6 +505,7 @@
             if (userInDb) {
                 userInDb.hasUnread = true;
             }
+            localStorage.setItem('counseling_users', JSON.stringify(users));
             document.getElementById('student-chat-input').value = '';
             renderStudentView('chat');
             setTimeout(() => document.querySelector('#student-chat-window').scrollTop = 9999, 0); // scroll to bottom
@@ -512,6 +518,7 @@
                 const userToView = users.find(u => u.id === activeUserId);
                 if (userToView) {
                     userToView.hasUnread = false;
+                    localStorage.setItem('counseling_users', JSON.stringify(users));
                 }
             }
             const adminAppContainer = document.getElementById('admin-app');
@@ -700,7 +707,10 @@
                 return `<button onclick="updateAppointmentStatus(${appointment.id}, 'Selesai')" class="text-sky-600 hover:text-sky-900 font-medium">Tandai Selesai</button>`;
             }
              if (appointment.status === 'Selesai') {
-                return `<button onclick="openNotesModal(${appointment.id})" class="text-slate-600 hover:text-slate-900 font-medium">Catatan</button>`;
+                return `<div class="flex gap-2"><button onclick="openNotesModal(${appointment.id})" class="text-slate-600 hover:text-slate-900 font-medium">Catatan</button><button onclick="deleteAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 font-medium">Hapus</button></div>`;
+            }
+            if (appointment.status === 'Ditolak') {
+                return `<button onclick="deleteAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 font-medium">Hapus</button>`;
             }
             return '-';
         }
@@ -709,6 +719,16 @@
             const appointment = appointments.find(a => a.id === id);
             if (appointment) {
                 appointment.status = newStatus;
+                localStorage.setItem('counseling_appointments', JSON.stringify(appointments));
+                renderAdminView('admin-janji-temu');
+            }
+        }
+        
+        function deleteAppointment(id) {
+            const appointmentIndex = appointments.findIndex(a => a.id === id);
+            if (appointmentIndex > -1) {
+                appointments.splice(appointmentIndex, 1);
+                localStorage.setItem('counseling_appointments', JSON.stringify(appointments));
                 renderAdminView('admin-janji-temu');
             }
         }
@@ -719,6 +739,7 @@
             const phone = e.target.counselor_phone.value;
             if (name && phone) {
                 counselors.push({ id: Date.now(), name, phone });
+                localStorage.setItem('counseling_counselors', JSON.stringify(counselors));
                 renderAdminView('admin-manage-users');
             }
         }
@@ -734,6 +755,7 @@
                     return;
                 }
                 users.push({ id: Date.now(), name, username, class: studentClass, chatHistory: [], hasUnread: false });
+                localStorage.setItem('counseling_users', JSON.stringify(users));
                 alert(`Siswa ${name} berhasil ditambahkan!`);
                 e.target.reset();
                 renderAdminView('admin-manage-users');
@@ -750,6 +772,7 @@
                 time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             };
             chatUser.chatHistory.push(newMessage);
+            localStorage.setItem('counseling_users', JSON.stringify(users));
             renderAdminView('admin-chat', userId);
         }
 
@@ -762,8 +785,7 @@
                 time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             };
             groupChatMessages.push(newMessage);
-            // Save to localStorage
-            localStorage.setItem('groupChatMessages', JSON.stringify(groupChatMessages));
+            localStorage.setItem('counseling_groupChatMessages', JSON.stringify(groupChatMessages));
             renderAdminView('admin-info-umum');
         }
 
@@ -804,6 +826,7 @@
             const appointment = appointments.find(a => a.id === appointmentId);
             if (appointment) {
                 appointment.notes = document.getElementById('notes-textarea').value;
+                localStorage.setItem('counseling_appointments', JSON.stringify(appointments));
                 alert('Catatan berhasil disimpan!');
                 closeModal('notes-modal');
             }
@@ -816,5 +839,3 @@
     </script>
 </body>
 </html>
-
-
